@@ -82,9 +82,6 @@ mysql-client \
 
 RUN mkdir -p $APP_ROOT/courses $APP_ROOT/libraries $APP_ROOT/webwork2
 
-RUN cd /etc/shibboleth/ \
-    && shib-keygen
-
 RUN curl -fSL https://github.com/openwebwork/pg/archive/${PG_VERSION}.tar.gz -o /tmp/${PG_VERSION}.tar.gz \
 && tar xzf /tmp/${PG_VERSION}.tar.gz \
 && mv pg-${PG_VERSION} $APP_ROOT/pg \
@@ -134,6 +131,9 @@ RUN cd $APP_ROOT/webwork2/ \
 COPY docker-entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+RUN cd /etc/shibboleth/ \
+    && shib-keygen
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
