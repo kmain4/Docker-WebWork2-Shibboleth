@@ -67,6 +67,7 @@ RUN apt-get update \
        libxml-parser-perl \
        libxml-writer-perl \
        libapache2-reload-perl \
+       libapache2-mod-shib2 \
        make \
        netpbm \
        preview-latex-style \
@@ -124,13 +125,23 @@ COPY . $APP_ROOT/webwork2
 
 RUN cd $APP_ROOT/pg/lib/chromatic \
     && gcc color.c -o color
+    
+RUN echo '<Location /Shibboleth.sso>' >> /etc/apache2/conf-available/shib2.conf
+RUN echo '  SetHandler shib' >> /etc/apache2/conf-available/shib2.conf
+RUN echo '  AuthType None' >> /etc/apache2/conf-available/shib2.conf
+RUN echo '  Require all granted' >> /etc/apache2/conf-available/shib2.conf
+RUN echo '  RewriteEngine On' >> /etc/apache2/conf-available/shib2.conf
+RUN echo '  RewriteRule ^/Shibboleth.sso.* - [L]' >> /etc/apache2/conf-available/shib2.conf
+RUN echo '</Location>' >> /etc/apache2/conf-available/shib2.conf
+
 
 # setup apache
 RUN cd $APP_ROOT/webwork2/conf \
     && cp webwork.apache2.4-config.dist webwork.apache2.4-config \
     && cp $APP_ROOT/webwork2/conf/webwork.apache2.4-config /etc/apache2/conf-enabled/webwork.conf \
     && a2dismod mpm_event \
-    && a2enmod mpm_prefork \
+    && a2enmod mpm_prefork shib2 \
+    && a2enconf shib2 \
     && sed -i -e 's/Timeout 300/Timeout 1200/' /etc/apache2/apache2.conf \
     && sed -i -e 's/MaxRequestWorkers     150/MaxRequestWorkers     20/' \
         -e 's/MaxConnectionsPerChild   0/MaxConnectionsPerChild   100/' \
