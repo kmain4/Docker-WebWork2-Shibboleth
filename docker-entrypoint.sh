@@ -73,7 +73,7 @@ if [ "$1" = 'apache2' ]; then
     # Fix possible permission issues
     echo "Fixing ownership and permissions (just in case it is needed)"
     cd $APP_ROOT/webwork2
-    rm -rf htdocs/tmp/*    # pointers which which have no target shut down the rebuild process.
+    rm -rf htdocs/tmp/*    # pointers which have no target shut down the rebuild process.
                            # the tmp directory is rebuilt automatically at the cost of some speed.
     chown -R www-data logs tmp DATA 
     chmod -R u+w logs tmp DATA  ../courses
